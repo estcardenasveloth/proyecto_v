@@ -35,7 +35,7 @@ jobs:
         run:  pip install -e .
       
       - name: paso 4 -  Ejecutar script principal (collector.py)
-        run: python collector.py  
+        run: python src\SSE_Composite\collector.py  
                      
       - name: Commit y Push de cambios
         uses: stefanzweifel/git-auto-commit-action@v5
