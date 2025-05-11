@@ -1,4 +1,4 @@
-name: adquisicion_de_datos
+name: adquisicion_de_datos_yahoo
 
 on:
   push:
