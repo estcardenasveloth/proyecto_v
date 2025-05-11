@@ -19,7 +19,7 @@ jobs:
       - name: Configurar Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12.4'
+          python-version: '3.11.0'
 
       
       - name: paso 1 - Crear y activar entorno virtual
@@ -34,19 +34,13 @@ jobs:
       - name: paso 3 - Instalar dependencias
         run:  pip install -e .
       
-      - name: paso 4 -  Ejecutar script principal (ingestion.py)
-        run: python ingestion.py  
-
-      - name: paso 5 -  Ejecutar script de limpieza (cleaning.py)
-        run: python cleaning.py  
-      
-      - name: paso 6 -  Ejecutar script de limpieza (add_code_iso.py)
-        run: python add_code_iso.py 
-      
+      - name: paso 4 -  Ejecutar script principal (collector.py)
+        run: python collector.py  
+                     
       - name: Commit y Push de cambios
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: limpieza y procesamiento de datos
+          commit_message: adquisicion de datos
           commit_user_name: estcardenasveloth [GitHub Actions]
           commit_user_email: julio.cardenas@est.iudigital.edu.co
           commit_author: Julio Cardenas <julio.cardenas@est.iudigital.edu.co>
