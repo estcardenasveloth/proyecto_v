@@ -41,18 +41,24 @@ jobs:
         run:  python src/SSE_Composite/enricher.py
 
       - name: paso 6 -  Ejecutar el modelo de predicción (Modeller.py)
-        run:  |
+        run: |
           python src/SSE_Composite/modeller.py --train
           python src/SSE_Composite/modeller.py --predict
 
       - name: paso 7 -  Exportar dashboard (dashboard.py)
         run:  python src/SSE_Composite/dashboard.py --export
 
-     # - name: Subir artifacts
-        #uses: actions/upload-artifact@v3.1.1
-        #with:
-          #name: kpi-report
-          #path: src/SSE_Composite/artifacts
+      - name: Commit artefactos al repo
+        run: |
+          cd src/SSE_Composite
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add artifacts/
+          git commit -m "chore: agregar reportes estáticos de KPI"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
       - name: Commit y Push de cambios
         uses: stefanzweifel/git-auto-commit-action@v5
