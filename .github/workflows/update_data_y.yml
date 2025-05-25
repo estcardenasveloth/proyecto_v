@@ -42,8 +42,8 @@ jobs:
 
       - name: paso 6 -  Ejecutar el modelo de predicción (Modeller.py)
         run:  |
-          python src/modeller.py --train
-          python src/modeller.py --predict
+          python src/SSE_Composite/modeller.py --train
+          python src/SSE_Composite/modeller.py --predict
 
       - name: paso 7 -  Exportar dashboard (dashboard.py)
         run:  python src/SSE_Composite/dashboard.py --export
