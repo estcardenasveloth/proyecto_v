@@ -33,27 +33,27 @@ jobs:
 
       - name: paso 3 - Instalar dependencias
         run:  pip install -e .
- 
+
       - name: paso 4 -  Ejecutar script principal (collector.py)
-        run: python src/SSE_Composite/collector.py  
+        run:  python src/SSE_Composite/collector.py  
 
       - name: paso 5 -  Ejecutar enriquecimiento de datos (enricher.py)
-        run: python src/SSE_Composite/enricher.py
+        run:  python src/SSE_Composite/enricher.py
 
       - name: paso 6 -  Ejecutar el modelo de predicción (Modeller.py)
         run:  |
           python src/modeller.py --train
           python src/modeller.py --predict
 
-      - name: paso 7 -  Exportar dashboard (Modeller.py)
+      - name: paso 7 -  Exportar dashboard (dashboard.py)
         run:  python src/SSE_Composite/dashboard.py --export
 
       - name: Subir artifacts
         uses: actions/upload-artifact@v3.1.1
         with:
           name: kpi-report
-          path: src/SSE_Composite/artifacts/
-                     
+          path: src/SSE_Composite/artifacts
+
       - name: Commit y Push de cambios
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
