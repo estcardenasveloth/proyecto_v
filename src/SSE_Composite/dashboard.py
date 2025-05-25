@@ -1,5 +1,3 @@
-# src/SSE_Composite/dashboard.py
-
 import os
 import sys
 import argparse
@@ -30,7 +28,7 @@ def load_data():
 
 
 def export_report():
-    """Genera PNGs y un HTML estático con KPIs y gráficos."""
+    """Genera PNGs y un HTML estatico con KPIs y graficos."""
     df = load_data()
     df = enrich_kpis(df)
     fecha_max = df['Fecha'].max()
@@ -65,19 +63,19 @@ def export_report():
     with open(HTML_REPORT, 'a', encoding='utf-8') as f:
         f.write("</body></html>")
 
-    print(f"✅ Reporte estático generado en {ART_DIR}")
+    print(f"Reporte estatico generado en {ART_DIR}")
 
 
 def render_dashboard():
     """Arranca la app Streamlit."""
     import streamlit as st  # solo aquí importamos Streamlit
     st.set_page_config(page_title="KPIs SSE Composite", layout="wide")
-    st.title("📊 Dashboard de KPIs SSE Composite")
+    st.title("Dashboard de KPIs SSE Composite")
 
     try:
         df = load_data()
     except Exception as e:
-        st.error(f"❌ {e}")
+        st.error(f" {e}")
         return
 
     df = enrich_kpis(df)
@@ -97,7 +95,7 @@ def render_dashboard():
         col.metric(label, f"{val:.4f}")
 
     st.markdown("---")
-    st.subheader("Evolución Histórica de KPIs")
+    st.subheader("Evolucion Historica de KPIs")
 
     kpi_cols = list(kpis.keys())
     # Primera fila: 3 gráficos

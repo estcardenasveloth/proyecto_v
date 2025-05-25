@@ -59,7 +59,7 @@ class Modeller:
         rmse_naive = mse_naive ** 0.5
         r2_naive = r2_score(y_test, naive_preds)
 
-        print("=== Evaluación del modelo ===")
+        print("=== Evaluacion del modelo ===")
         print(f"MAE modelo:  {mae:.4f}")
         print(f"RMSE modelo: {rmse:.4f}")
         print(f"R2 modelo:   {r2:.4f}\n")
