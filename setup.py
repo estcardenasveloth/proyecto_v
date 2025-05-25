@@ -12,6 +12,10 @@ setup(
         "pandas>=1.0.0",
         "beautifulsoup4>=4.9.0",
         "selenium>=4.0.0"
+        "scikit-learn"
+        "joblib"
+        "streamlit"
+        "matplotlib"
     ],
     python_requires=">=3.7",
 )
