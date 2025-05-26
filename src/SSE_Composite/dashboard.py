@@ -83,13 +83,17 @@ def render_dashboard():
     latest = df[df['Fecha'] == fecha_max].iloc[0]
 
     st.subheader(f"KPIs al {fecha_max.date()}")
-    kpis = {
-        "Retorno": latest['Retorno'],
-        "Volatilidad 30d": latest['Volatilidad_30d'],
-        "SMA 50d": latest['SMA_50d'],
-        "Volumen Prom. 20d": latest['Volumen_20d_avg'],
-        "Volume Ratio": latest['Volume_Ratio']
+    # Etiqueta => nombre de columna
+    kpi_map = {
+        "Retorno":              "Retorno",
+        "Volatilidad 30d":      "Volatilidad_30d",
+        "SMA 50d":              "SMA_50d",
+        "Volumen Prom. 20d":    "Volumen_20d_avg",
+        "Volume Ratio":         "Volume_Ratio"
     }
+    
+    kpis = { label: latest[col] for label, col in kpi_map.items() }
+    
     cols = st.columns(len(kpis))
     for col, (label, val) in zip(cols, kpis.items()):
         col.metric(label, f"{val:.4f}")
@@ -97,20 +101,23 @@ def render_dashboard():
     st.markdown("---")
     st.subheader("Evolucion Historica de KPIs")
 
-    kpi_cols = list(kpis.keys())
+    # Para las gráficas usamos los nombres de columna reales
+    col_names = list(kpi_map.values())
+    labels    = list(kpi_map.keys())
+    
     # Primera fila: 3 gráficos
     row1 = st.columns(3)
-    for i, name in enumerate(kpi_cols[:3]):
+    for i, (label, col) in enumerate(zip(labels[:3], col_names[:3])):
         with row1[i]:
-            st.markdown(f"**{name}**")
-            st.line_chart(df.set_index('Fecha')[[name]], height=250)
+            st.markdown(f"**{label}**")
+            st.line_chart(df.set_index('Fecha')[[col]], height=250)
 
     # Segunda fila: 2 gráficos
     row2 = st.columns(2)
-    for i, name in enumerate(kpi_cols[3:]):
+    for i, (label, col) in enumerate(zip(labels[3:], col_names[3:])):
         with row2[i]:
-            st.markdown(f"**{name}**")
-            st.line_chart(df.set_index('Fecha')[[name]], height=250)
+            st.markdown(f"**{label}**")
+            st.line_chart(df.set_index('Fecha')[[col]], height=250)
 
 
 if __name__ == "__main__":
