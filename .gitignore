@@ -136,6 +136,13 @@ ENV/
 env.bak/
 venv.bak/
 
+# Datos históricos que se regeneran
+/src/SSE_Composite/static/data/*.csv
+/src/SSE_Composite/static/data/*.db
+
+# Carpeta de artifacts generados
+/src/SSE_Composite/artifacts/
+
 # Spyder project settings
 .spyderproject
 .spyproject
