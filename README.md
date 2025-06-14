@@ -9,7 +9,7 @@ Este repositorio contiene un **script Python** (`collector.py`) que automatiza l
 - **Origen de datos**  
   Historial diario de apertura, máximo, mínimo, cierre y volumen en:  
   `https://es.finance.yahoo.com/quote/000001.SS/history/`  
-  (periodo 9 de mayo 2024 – 9 de mayo 2025).
+  (periodo 9 de mayo 2024 – 13 de junio 2025).
 
 - **Componentes principales**  
   1. **`collector.py`**  
@@ -28,6 +28,7 @@ Este repositorio contiene un **script Python** (`collector.py`) que automatiza l
      - **Volumen_20d_avg**: volumen medio de los últimos 20 días.  
      - **Volume_Ratio**: ratio entre el volumen del día y su media a 20 días.  
      - **Drawdown**: caída porcentual desde el máximo histórico acumulado.
+     - **Media Móvil Exponencial 20 días (EMA_20d) (KPI adicional): Media móvil que da más peso a los datos recientes, calculada con un “span” de 20 días
 
   3. **`modeller.py`**  
      - Entrena un modelo de regresión lineal para predecir el cierre del día siguiente.  
