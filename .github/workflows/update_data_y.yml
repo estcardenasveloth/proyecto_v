@@ -48,13 +48,9 @@ jobs:
       - name: paso 7 -  Exportar dashboard (dashboard.py)
         run:  python src/SSE_Composite/dashboard.py --export
 
-      - name: Sincronizar con main antes de commitear
+      - name: Sincronizar main antes de commitear
         run: |
           cd src/SSE_Composite
-          # Eliminar archivos no-trackeados que chocan con el pull
-          rm -f static/data/historical.csv static/data/historical.db
-          rm -rf artifacts
-          # Ahora sí, traemos y fusionamos la última versión de main
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git pull origin main
