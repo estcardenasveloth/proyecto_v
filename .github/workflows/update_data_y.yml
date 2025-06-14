@@ -48,6 +48,13 @@ jobs:
       - name: paso 7 -  Exportar dashboard (dashboard.py)
         run:  python src/SSE_Composite/dashboard.py --export
 
+      - name: Sincronizar main antes de commitear
+        run: |
+          cd src/SSE_Composite
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull origin main  
+
       - name: Commit artefactos al repo
         run: |
           cd src/SSE_Composite
