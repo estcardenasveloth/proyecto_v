@@ -5,7 +5,6 @@ import sqlite3
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# AÑADIMOS la carpeta actual al sys.path para importar enricher.py
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 if BASE_DIR not in sys.path:
     sys.path.insert(0, BASE_DIR)
@@ -18,7 +17,6 @@ os.makedirs(ART_DIR, exist_ok=True)
 
 
 def load_data():
-    """Carga el DataFrame desde SQLite o lanza FileNotFoundError."""
     if not os.path.exists(DB_PATH):
         raise FileNotFoundError(f"BD no encontrada: {DB_PATH}")
     conn = sqlite3.connect(DB_PATH)
@@ -28,22 +26,19 @@ def load_data():
 
 
 def export_report():
-    """Genera PNGs y un HTML estatico con KPIs y graficos."""
     df = load_data()
     df = enrich_kpis(df)
     fecha_max = df['Fecha'].max()
     latest = df[df['Fecha'] == fecha_max].iloc[0]
 
-    # 1) Cabecera HTML con métricas
     with open(HTML_REPORT, 'w', encoding='utf-8') as f:
         f.write(f"<html><head><meta charset='utf-8'><title>Reporte KPIs SSE Composite</title></head><body>\n")
         f.write(f"<h1>KPIs al {fecha_max.date()}</h1>\n<ul>\n")
-        for k in ["Retorno", "Volatilidad_30d", "SMA_50d", "Volumen_20d_avg", "Volume_Ratio"]:
+        for k in ["Retorno", "Volatilidad_30d", "SMA_50d", "Volumen_20d_avg", "Volume_Ratio", "EMA_20d"]:
             f.write(f"<li><strong>{k}:</strong> {latest[k]:.4f}</li>\n")
         f.write("</ul><hr>\n")
 
-    # 2) Gráficos individuales
-    for k in ["Retorno", "Volatilidad_30d", "SMA_50d", "Volumen_20d_avg", "Volume_Ratio"]:
+    for k in ["Retorno", "Volatilidad_30d", "SMA_50d", "Volumen_20d_avg", "Volume_Ratio", "EMA_20d"]:
         fig, ax = plt.subplots()
         ax.plot(df['Fecha'], df[k])
         ax.set_title(k)
@@ -55,7 +50,6 @@ def export_report():
         fig.savefig(png_path)
         plt.close(fig)
 
-        # Append al HTML
         with open(HTML_REPORT, 'a', encoding='utf-8') as f:
             f.write(f"<h2>{k}</h2>\n")
             f.write(f"<img src='{os.path.basename(png_path)}' style='max-width:800px;width:100%;'>\n")
@@ -67,69 +61,79 @@ def export_report():
 
 
 def render_dashboard():
-    """Arranca la app Streamlit."""
-    import streamlit as st  # solo aquí importamos Streamlit
+    import streamlit as st
     st.set_page_config(page_title="KPIs SSE Composite", layout="wide")
     st.title("Dashboard de KPIs SSE Composite")
 
     try:
         df = load_data()
     except Exception as e:
-        st.error(f" {e}")
+        st.error(f"{e}")
         return
 
     df = enrich_kpis(df)
+
+    # Sidebar filters
+    st.sidebar.header("Filtros")
+    min_date, max_date = df['Fecha'].min(), df['Fecha'].max()
+    fecha_ini, fecha_fin = st.sidebar.date_input(
+        "Rango de fechas",
+        value=(min_date, max_date),
+        min_value=min_date,
+        max_value=max_date
+    )
+    df = df[(df['Fecha'] >= pd.to_datetime(fecha_ini)) & (df['Fecha'] <= pd.to_datetime(fecha_fin))]
+
+    señales = sorted(df['Senal_Mercado'].dropna().unique())
+    señal_sel = st.sidebar.multiselect("Tipo de señal", options=señales, default=señales)
+    df = df[df['Senal_Mercado'].isin(señal_sel)]
+
+    min_dd, max_dd = float(df['Drawdown'].min()), float(df['Drawdown'].max())
+    umbral_dd = st.sidebar.slider("Drawdown mínimo", min_value=min_dd, max_value=max_dd, value=min_dd)
+    df = df[df['Drawdown'] >= umbral_dd]
+
     fecha_max = df['Fecha'].max()
     latest = df[df['Fecha'] == fecha_max].iloc[0]
 
     st.subheader(f"KPIs al {fecha_max.date()}")
-    # Etiqueta => nombre de columna
     kpi_map = {
-        "Retorno":              "Retorno",
-        "Volatilidad 30d":      "Volatilidad_30d",
-        "SMA 50d":              "SMA_50d",
-        "Volumen Prom. 20d":    "Volumen_20d_avg",
-        "Volume Ratio":         "Volume_Ratio"
+        "Retorno": "Retorno",
+        "Volatilidad 30d": "Volatilidad_30d",
+        "SMA 50d": "SMA_50d",
+        "Volumen Prom. 20d": "Volumen_20d_avg",
+        "Volume Ratio": "Volume_Ratio",
+        "EMA 20d": "EMA_20d"
     }
-    
-    kpis = { label: latest[col] for label, col in kpi_map.items() }
-    
+    kpis = {label: latest[col] for label, col in kpi_map.items()}
     cols = st.columns(len(kpis))
     for col, (label, val) in zip(cols, kpis.items()):
         col.metric(label, f"{val:.4f}")
 
     st.markdown("---")
-    st.subheader("Evolucion Historica de KPIs")
+    st.subheader("Evolución Histórica de KPIs (filtrada)")
 
-    # Para las gráficas usamos los nombres de columna reales
-    col_names = list(kpi_map.values())
-    labels    = list(kpi_map.keys())
-    
-    # Primera fila: 3 gráficos
+    labels = list(kpi_map.keys())
+    cols_names = list(kpi_map.values())
     row1 = st.columns(3)
-    for i, (label, col) in enumerate(zip(labels[:3], col_names[:3])):
+    for i, (label, col) in enumerate(zip(labels[:3], cols_names[:3])):
         with row1[i]:
             st.markdown(f"**{label}**")
             st.line_chart(df.set_index('Fecha')[[col]], height=250)
-
-    # Segunda fila: 2 gráficos
-    row2 = st.columns(2)
-    for i, (label, col) in enumerate(zip(labels[3:], col_names[3:])):
+    remaining = len(labels) - 3
+    row2 = st.columns(remaining)
+    for i, (label, col) in enumerate(zip(labels[3:], cols_names[3:])):
         with row2[i]:
             st.markdown(f"**{label}**")
             st.line_chart(df.set_index('Fecha')[[col]], height=250)
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--export', action='store_true',
-                        help="Genera artifacts (PNG + report.html) y sale")
+    parser.add_argument('--export', action='store_true', help="Genera artifacts (PNG + report.html) y sale")
     args = parser.parse_args()
-
     if args.export:
         export_report()
     else:
-        # Modo interactivo Streamlit
         render_dashboard()
+
 
 

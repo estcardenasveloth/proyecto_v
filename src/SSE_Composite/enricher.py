@@ -22,6 +22,10 @@ def enrich_kpis(df: pd.DataFrame, logger=None) -> pd.DataFrame:
 
     # Media móvil y volumen promedio
     df['SMA_50d'] = df[close_col].rolling(50).mean()
+
+    # EMA de 20 días
+    df['EMA_20d'] = df[close_col].ewm(span=20, adjust=False).mean()
+
     df['Volumen_20d_avg'] = df[vol_col].rolling(20).mean()
     df['Volume_Ratio'] = df[vol_col] / df['Volumen_20d_avg']
 
