@@ -6,6 +6,7 @@ def enrich_kpis(df: pd.DataFrame, logger=None) -> pd.DataFrame:
       - Retorno diario
       - Volatilidad anualizada (30 días)
       - Media móvil 50 días (SMA_50d)
+      - Media móvil exponencial 20 días (EMA_20d)
       - Volumen promedio 20 días (Volumen_20d_avg)
       - Ratio de volumen (Volume_Ratio)
       - Drawdown
@@ -20,12 +21,13 @@ def enrich_kpis(df: pd.DataFrame, logger=None) -> pd.DataFrame:
     df['Retorno'] = df[close_col].pct_change()
     df['Volatilidad_30d'] = df['Retorno'].rolling(30).std() * (252**0.5)
 
-    # Media móvil y volumen promedio
+    # Media móvil simple 50d
     df['SMA_50d'] = df[close_col].rolling(50).mean()
 
-    # EMA de 20 días
+    # Media móvil exponencial 20d (EMA)
     df['EMA_20d'] = df[close_col].ewm(span=20, adjust=False).mean()
 
+    # Volumen promedio 20d y ratio de volumen
     df['Volumen_20d_avg'] = df[vol_col].rolling(20).mean()
     df['Volume_Ratio'] = df[vol_col] / df['Volumen_20d_avg']
 
@@ -49,3 +51,4 @@ def enrich_kpis(df: pd.DataFrame, logger=None) -> pd.DataFrame:
     if logger:
         logger.info('KPIs calculados y señal añadida.')
     return df
+
